@@ -53,18 +53,20 @@ final_Product:   .word     0
 .type asmFixSign,%function
 .type asmMain,%function
 
-/* function: asmAbs
- *    inputs:   r0: contains signed value
- *              r1: address where to store absolute value
- *              r2: address where to store sign bit:
- *                  0 = "+", 1 = "-"
- *    outputs:  r0: Absolute value of r0 input. Same value
- *                  as stored to location given in r1
+/* function: asmUnpack
+ *    inputs:   r0: contains the packed value. 
+ *                  MSB 16bits is signed multiplicand (a)
+ *                  LSB 16bits is signed multiplier (b)
+ *              r1: address where to store unpacked, 
+ *                  sign-extended 32 bit a value
+ *              r2: address where to store unpacked, 
+ *                  sign-extended 32 bit b value
+ *    outputs:  r0: No return value
  *              memory: 
- *                  1) store absolute value in location
- *                     given by r1
- *                  2) store sign bit in location 
- *                     given by r2
+ *                  1) store unpacked A value in location
+ *                     specified by r1
+ *                  2) store unpacked B value in location
+ *                     specified by r2
  */
 asmUnpack:   
     
