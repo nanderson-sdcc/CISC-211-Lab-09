@@ -71,7 +71,21 @@ final_Product:   .word     0
 asmUnpack:   
     
     /*** STUDENTS: Place your asmUnpack code BELOW this line!!! **************/
+    /* Function procedures */
+    PUSH {R4-R11, LR}
+    
+    /* We need to unpack both values. Lets start with the MSB 16bits since it is simply a shift */
+    MOV r4, r0
+    ASR r4, r4, 16
+    LDR r4, [r1] @putting the value into memory
 
+    /* Now we extract the value of B. This one is tricky - we do a bitmask and sign extension */
+    MOV r2, r0 
+    LDR r5, =0x0000FFFF @ we will use this for a bitmask
+    AND r2, r2, r5 @ this ensures that we only look at the lower 16 bits of the original
+    
+    
+    
     
     /*** STUDENTS: Place your asmUnpack code ABOVE this line!!! **************/
 
@@ -161,7 +175,7 @@ asmMain:
      * call asmUnpack. Have it store the output values in 
      * a_Multiplicand and b_Multiplier.
      */
-
+    BL asmUnpack
 
     /* Step 2a:
      * call asmAbs for the multiplicand (A). Have it store the
