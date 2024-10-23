@@ -117,16 +117,31 @@ asmAbs:
     /* Function procedure */
     PUSH {R4-R11, LR}
     
-    /* Getting the sign bit */
+    /* Getting the sign bit and storing it in r5 */
     MOV r4, 0x00007000
     AND r5, r0, r4
     LSR r5, r5, 15
     STR r5, [r2]
+
+    /* Determine the absolute value by looking at the sign bit */
+    CMP r5, 0
+    BNE negative_sign @if it is negative, branch to a different procedure
+    STR r0, [r1] @at this point, it is positive, so the absolute value is simply the value
     
     /* Function procedure */
     POP {R4-R11, LR}
     MOV PC, LR
 
+negative_sign:
+    /* Do the 2's complement procedure to get the absolute value of this int */
+    NEG r0, r0
+    ADD r0, r0, 1
+    STR r0, [r1]
+
+    /* Function procedure, since this the the end of a branch that is part of a function */
+    POP {R4-R11, LR}
+    MOV PC, LR
+    
     /*** STUDENTS: Place your asmAbs code ABOVE this line!!! **************/
 
 
@@ -141,7 +156,25 @@ asmAbs:
 asmMult:   
 
     /*** STUDENTS: Place your asmMult code BELOW this line!!! **************/
+    PUSH {r4-r11, LR}
+    
+    /* This is the same loop from the lecture. Running total is located in r4 */
+mult:
+    CMP r1, 0
+    BEQ done
 
+    TST r1, 1
+    ADDNE r4, r4, r0
+
+    LSL r0, r0, 1
+    LSR r1, r1, 1
+    B mult
+    
+done:
+    MOV r0, r4 @store our product as a return value
+
+    POP {r4-r11, LR}
+    MOV PC, LR
 
     /*** STUDENTS: Place your asmMult code ABOVE this line!!! **************/
    
