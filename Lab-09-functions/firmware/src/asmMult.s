@@ -195,7 +195,14 @@ done:
 asmFixSign:   
     
     /*** STUDENTS: Place your asmFixSign code BELOW this line!!! **************/
+    PUSH {r4-r11, LR}
 
+    CMP r1, r2
+    NEGNE r0, r0 @if the signs are different, we convert the number using 2's compliment, since it is negative
+    ADDNE r0, r0, 1
+
+    POP {r4-r11, LR}
+    MOV PC, LR
     
     /*** STUDENTS: Place your asmFixSign code ABOVE this line!!! **************/
 
