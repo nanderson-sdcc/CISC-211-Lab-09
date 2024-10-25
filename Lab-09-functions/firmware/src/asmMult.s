@@ -238,6 +238,16 @@ asmMain:
      * call asmAbs for the multiplicand (A). Have it store the
      * absolute value in a_Abs, and the sign in a_Sign.
      */
+
+    /* We need to retrieve our input values for this function */
+    LDR r4, =a_Multiplicand
+    LDR r5, [r4]
+    MOV r0, r5
+
+    LDR r1, =a_Abs
+    MOV r2, r4
+
+    /* Now we perform the subroutine */
     BL asmAbs
 
 
@@ -245,7 +255,7 @@ asmMain:
      * call asmAbs for the multiplier (B). Have it store the
      * absolute value in b_Abs, and the sign in b_Sign.
      */
-
+    BL asmAbs
 
     /* Step 3:
      * call asmMult. Pass a_Abs as the multiplicand, 
