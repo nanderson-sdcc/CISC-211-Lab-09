@@ -118,29 +118,20 @@ asmAbs:
     PUSH {R4-R11, LR}
     
     /* Getting the sign bit and storing it in r5 */
-    MOV r4, 0x00007000
+    MOV r4, 0x8000
     AND r5, r0, r4
     LSR r5, r5, 15
     STR r5, [r2]
 
     /* Determine the absolute value by looking at the sign bit */
     CMP r5, 0
-    BNE negative_sign @if it is negative, branch to a different procedure
-    STR r0, [r1] @at this point, it is positive, so the absolute value is simply the value
+    NEGNE r0, r0 @if it is negative, do the 2's compliment
+    STR r0, [r1] @at this point the absolute value is simply the value
     
     /* Function procedure */
     POP {R4-R11, LR}
     MOV PC, LR
 
-negative_sign:
-    /* Do the 2's complement procedure to get the absolute value of this int */
-    NEG r0, r0
-    ADD r0, r0, 1
-    STR r0, [r1]
-
-    /* Function procedure, since this the the end of a branch that is part of a function */
-    POP {R4-R11, LR}
-    MOV PC, LR
     
     /*** STUDENTS: Place your asmAbs code ABOVE this line!!! **************/
 
@@ -157,6 +148,8 @@ asmMult:
 
     /*** STUDENTS: Place your asmMult code BELOW this line!!! **************/
     PUSH {r4-r11, LR}
+    
+    MOV r4, 0 @this ensures the running total starts at 0
     
     /* This is the same loop from the lecture. Running total is located in r4 */
 mult:
@@ -199,7 +192,6 @@ asmFixSign:
 
     CMP r1, r2
     NEGNE r0, r0 @if the signs are different, we convert the number using 2's compliment, since it is negative
-    ADDNE r0, r0, 1
 
     POP {r4-r11, LR}
     MOV PC, LR
@@ -227,6 +219,8 @@ asmFixSign:
 asmMain:   
     
     /*** STUDENTS: Place your asmMain code BELOW this line!!! **************/
+    PUSH {r4-r11, LR}
+    
     
     /* Step 1:
      * call asmUnpack. Have it store the output values in 
@@ -247,7 +241,7 @@ asmMain:
     LDR r1, =a_Abs
     MOV r2, r4
 
-    /* Now we perform the subroutine */
+    /* Now we perform the subroutine since our inputs are in the correct registers */
     BL asmAbs
 
 
@@ -255,6 +249,15 @@ asmMain:
      * call asmAbs for the multiplier (B). Have it store the
      * absolute value in b_Abs, and the sign in b_Sign.
      */
+    
+    /* same as with a */
+    LDR r4, =b_Multiplier
+    LDR r5, [r4]
+    MOV r0, r5
+    
+    LDR r1, =b_Abs
+    MOV r2, r4
+    
     BL asmAbs
 
     /* Step 3:
@@ -265,7 +268,13 @@ asmMain:
      * init_Product.
      */
 
-
+    @like before, we just gather out inputs and call the method
+    LDR r4, =a_Multiplicand
+    LDR r0, [r4]
+    LDR r5, =b_Multiplier
+    LDR r2, [r5]
+    
+    BL asmMult
 
     /* Step 4:
      * call asmFixSign. Pass in the initial product, and the
@@ -276,7 +285,14 @@ asmMain:
      * final_Product.
      */
 
-
+    @initial product is already in r0 from previous method, but we need sign bits as inputs
+    LDR r4, =a_Sign
+    LDR r1, [r4]
+    LDR r5, =b_Sign
+    LDR r2, [r5]
+    
+    BL asmFixSign
+    
 
     /* Step 5:
      * END! Return to caller. Make sure of the following:
@@ -286,7 +302,8 @@ asmMain:
      */
 
 
-
+    POP {r4-r11, LR}
+    MOV PC, LR
     
     /*** STUDENTS: Place your asmMain code ABOVE this line!!! **************/
 
