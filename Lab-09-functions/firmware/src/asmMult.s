@@ -75,6 +75,32 @@ asmUnpack:
     /* Function procedures */
     PUSH {R4-R11, LR}
     
+    
+    /* Let's set all the values from memory to 0 */
+    MOV r5, 0
+    
+    LDR r4, =a_Multiplicand
+    STR r5, [r4]
+    LDR r4, =b_Multiplier
+    STR r5, [r4]
+    LDR r4, =rng_Error
+    STR r5, [r4]
+    LDR r4, =a_Sign
+    STR r5, [r4]
+    LDR r4, =b_Sign
+    STR r5, [r4]
+    LDR r4, =prod_Is_Neg
+    STR r5, [r4]
+    LDR r4, =a_Abs
+    STR r5, [r4]
+    LDR r4, =b_Abs
+    STR r5, [r4]
+    LDR r4, =init_Product
+    STR r5, [r4]
+    LDR r4, =final_Product
+    STR r5, [r4]
+    
+    
     /* We need to unpack both values. Lets start with the MSB 16bits since it is simply a shift */
     MOV r4, r0
     ASR r4, r4, 16
@@ -226,6 +252,11 @@ asmMain:
      * call asmUnpack. Have it store the output values in 
      * a_Multiplicand and b_Multiplier.
      */
+    
+    /* We need to get the r1 and r2 inputs ready for the subroutine, then call it */
+    LDR r1, =a_Multiplicand
+    LDR r2, =b_Multiplier
+    
     BL asmUnpack
 
     /* Step 2a:
@@ -239,7 +270,7 @@ asmMain:
     MOV r0, r5
 
     LDR r1, =a_Abs
-    MOV r2, r4
+    LDR r2, =a_Sign
 
     /* Now we perform the subroutine since our inputs are in the correct registers */
     BL asmAbs
@@ -256,7 +287,7 @@ asmMain:
     MOV r0, r5
     
     LDR r1, =b_Abs
-    MOV r2, r4
+    LDR r2, =b_Sign
     
     BL asmAbs
 
@@ -269,12 +300,14 @@ asmMain:
      */
 
     @like before, we just gather out inputs and call the method
-    LDR r4, =a_Multiplicand
+    LDR r4, =a_Abs
     LDR r0, [r4]
-    LDR r5, =b_Multiplier
-    LDR r2, [r5]
+    LDR r5, =b_Abs
+    LDR r1, [r5]
     
     BL asmMult
+    LDR r4, =init_Product
+    STR r0, [r4]
 
     /* Step 4:
      * call asmFixSign. Pass in the initial product, and the
@@ -292,6 +325,10 @@ asmMain:
     LDR r2, [r5]
     
     BL asmFixSign
+    
+    @store the output
+    LDR r4, =final_Product
+    STR r0, [r4]
     
 
     /* Step 5:
